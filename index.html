@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aware</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACaElEQVR42u3dz00CQRTAYTA0wJlsB3igABJqoBMq2FCBnVDDJhbgQfvYFjzowYMSZMnOm3nf72qCuPvluTPLn2XXbRbSbz05BIJDcAgOwSE4BIfgEByCQ3BIcAgOwSE4BIfgEByCQ3AIDgkOwSE4BIfgEByCQ3AIDsEhwSE4BIfgEByCQ3AIDsEhOASHBIfgEByCQ3AIDsGh2lvFfFof729//Wj7vJvzQQI+jskhOASH4BAcgkNwSHAIDsGRovX5UPC3r5wALEyOmlj8lFFQiclhWpgcVU2LIGhMjsLtL6ewzw2OOlisz4exH+DAwuTA4v/XJTMPDzjmu+ScImP+/ylwVLBALcICDizgwAIOLODAAo5MLF6PLzHf1ARHYRaR/zo47mziLmdwFnBgAQcWcERm8b0SOS7gaO2Ss7p7InBEX4lUzQIOLODAAg4s4Agno0kWcExlEfaeCByFWWQ4RBlx7C+nu2UkYZERx5TtrFQscuHAAo4Hs6j0nggcs7DIXZs47GjBgQUcWMCBBRxYwIEFHNWx+NrR2vY7574pHNle/A0HFnBgAUccFmM/XPk2RtWKI/NbReCwQIUDCziwgAMLOLBQKRytfnwWHA9o7If7fNjOyr6UxSI7jtuHBxYmBxZBK/Mdb1eWG2M/WIyYHBaoJscNFEwLk8O0MDnIgENwCA4JDsEhOASH4BAcqqRl120cBZkcgkNwCA7BITgEh+AQHIJDgkNwCA7BITgEh+AQHIJDcEhwCA7BITgEh+AQHIJDcAgOwSHBITgEh+AQHIJDcAgOwSE4JDgEh+AQHIJDcAgOwaE2+wR2eMvn2T/p9QAAAABJRU5ErkJggg==">
+<meta name="theme-color" content="#1d1d1b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Aware">
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--text:#1d1d1b;--muted:#7a7a72;--line:#e4e2da;--accent:#1d1d1b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141413;--card:#1f1f1d;--text:#f1f0ea;--muted:#9a9a90;--line:#33332f;--accent:#f1f0ea}}
+:root[data-theme="dark"]{--bg:#141413;--card:#1f1f1d;--text:#f1f0ea;--muted:#9a9a90;--line:#33332f;--accent:#f1f0ea}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.arrow{width:48px;height:48px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-size:22px}
+.title{text-align:center}.big{font-size:26px;font-weight:700}.sub{font-size:13px;color:var(--muted)}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+#goToday{font-size:13px;color:var(--muted);text-decoration:underline;padding:6px 2px}
+#edit{border:1px solid var(--line);border-radius:999px;padding:6px 18px;font-size:14px}
+#edit.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.hint{font-size:14px;color:var(--muted);padding:4px 2px 8px}
+.row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:16px;padding:10px 12px;margin-bottom:10px}
+.ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;flex:none;background:color-mix(in srgb,var(--c) 20%,transparent)}
+.name{flex:1;font-size:18px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.sm{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.count{min-width:34px;text-align:center;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.btn{width:52px;height:52px;border-radius:14px;font-size:28px;line-height:1;border:1px solid var(--line)}
+.btn.plus{color:#fff;border:0}.btn:active{transform:scale(.94)}
+.ctl{display:flex;gap:4px;flex:none}
+.ctl button{min-width:36px;height:36px;border:1px solid var(--line);border-radius:10px;font-size:14px;padding:0 8px;font-weight:400}
+.t .ctl{flex-direction:column}.t .ctl button{height:32px;font-size:13px}
+.red,.danger{color:#fff!important;background:#d33!important;border-color:#d33!important}
+.dash{width:100%;height:46px;border:2px dashed var(--line);border-radius:14px;color:var(--muted);margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:18px}
+.mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mhead b{font-size:17px}.mhead button{width:40px;height:40px;font-size:20px;border-radius:10px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{font-size:11px;color:var(--muted);text-align:center}
+.cell{aspect-ratio:1/1.05;border-radius:10px;border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:4px 2px;font-size:13px}
+.cell.sel{background:var(--accent);color:var(--bg)}.cell.now{border-color:var(--muted)}.cell.empty{visibility:hidden}
+.dots{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;min-height:8px}
+.dots i{width:6px;height:6px;border-radius:50%;display:block}
+.totals{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:14px}
+.tools{display:flex;gap:10px;justify-content:center;margin:18px 0 6px;font-size:13px;color:var(--muted)}
+.tools button{text-decoration:underline}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet[hidden]{display:none}
+.panel{background:var(--card);width:100%;max-width:480px;max-height:92%;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.panel h3{margin:0 0 12px}.panel p{margin:0 0 6px}
+.panel input{width:100%;font:inherit;font-size:17px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.seg button{padding:0 12px;height:40px;border-radius:12px;border:1px solid var(--line)}
+.seg button.on,.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.acts{display:flex;gap:10px;margin-top:14px}
+.acts button{flex:1;height:44px;border-radius:12px;border:1px solid var(--line)}
+.gl{font-size:12px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+.icons{display:flex;flex-wrap:wrap;gap:6px}
+.icons button{width:44px;height:44px;font-size:23px;border-radius:12px;border:2px solid var(--line)}
+.icons button.on{border-color:var(--accent);background:var(--bg)}
+
+.sec{margin-bottom:22px;border-radius:16px}
+.gtitle{display:flex;align-items:center;gap:10px;background:var(--accent);color:var(--bg);border-radius:14px;padding:10px 12px;font-size:19px;font-weight:700;margin:0 0 10px}
+.gtitle .gn{flex:1;min-width:0;overflow-wrap:anywhere}
+.pen{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);flex:none;font-size:16px}
+.gtitle .pen{border-color:color-mix(in srgb,var(--bg) 35%,transparent);color:var(--bg)}
+.grip{width:30px;height:40px;display:grid;place-items:center;flex:none;font-size:20px;color:var(--muted);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.gtitle .grip{color:var(--bg);opacity:.7}
+.dragging{position:relative;z-index:5;opacity:.88;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.mk-b{box-shadow:0 -3px 0 0 var(--accent)}.mk-a{box-shadow:0 3px 0 0 var(--accent)}.mk-s{outline:2px dashed var(--accent);outline-offset:2px}
+.addtop{display:flex;gap:10px;margin:6px 0 18px}
+.addtop button{flex:1;height:48px;border:2px dashed var(--line);border-radius:14px;font-size:15px;font-weight:600}
+</style>
+</head>
+<body>
+<main>
+  <div class="nav">
+    <button class="arrow" id="prev" aria-label="Previous day">‹</button>
+    <div class="title"><div class="big" id="big"></div><div class="sub" id="sub"></div></div>
+    <button class="arrow" id="next" aria-label="Next day">›</button>
+  </div>
+  <div class="bar"><button id="goToday">Back to today</button><button id="edit">Edit</button></div>
+  <div id="list"></div>
+  <div id="trash"></div>
+  <div class="card">
+    <div class="mhead"><button id="mprev" aria-label="Previous month">‹</button><b id="mtitle"></b><button id="mnext" aria-label="Next month">›</button></div>
+    <div class="grid" id="grid"></div>
+    <div class="totals" id="totals"></div>
+  </div>
+  <div class="tools"><button id="exp">Export backup</button><button id="imp">Import backup</button></div>
+  <input type="file" id="file" accept="application/json" hidden>
+</main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="panel">
+    <h3 id="stitle"></h3>
+    <input id="nm" placeholder="Name" maxlength="22" autocomplete="off">
+    <div class="seg" id="seg"></div>
+    <div id="icons"></div>
+    <div class="gl">Or your own emoji</div>
+    <input id="em" placeholder="Paste or type any emoji" maxlength="6">
+    <div class="acts"><button id="cancel">Cancel</button><button id="del" class="danger" hidden>Delete</button><button id="save" class="primary">Save</button></div>
+  </div>
+</div>
+<div class="sheet" id="dlg" hidden>
+  <div class="panel">
+    <p id="dmsg"></p>
+    <div class="acts"><button id="dno">Cancel</button><button id="dyes" class="danger"></button></div>
+  </div>
+</div>
+
+<script>
+const DEFGROUPS = [{id:'up', name:'Boosters', icon:'⚡'}, {id:'down', name:'Observed', icon:'👀'}];
+const DEFAULTS = [
+  {group:'up', id:'sports', name:'Exercise', icon:'🏃', color:'#2e9e5b'},
+  {group:'up', id:'nature', name:'Outdoors', icon:'🌳', color:'#65a30d'},
+  {group:'up', id:'food', name:'Healthy food', icon:'🥗', color:'#ef6c57'},
+  {group:'up', id:'reading', name:'Reading', icon:'📚', color:'#3b82d6'},
+  {group:'up', id:'mindfulness', name:'Self-care', icon:'🧘', color:'#d65a8a'},
+  {group:'down', id:'phone', name:'Phone use', icon:'📱', color:'#8a6bd1'},
+  {group:'down', id:'sweets', name:'Sweets', icon:'🍫', color:'#a16207'},
+  {group:'down', id:'caffeine', name:'Caffeine', icon:'☕', color:'#e0894a'}
+];
+// Only used to rescue data from older backups. OLD ones go straight to "Deleted".
+const LEGACY = {
+  work:{group:'up', name:'PhD', icon:'💡', color:'#3b82d6'},
+  projects:{group:'up', name:'Projects', icon:'🛠️', color:'#14b8a6'},
+  weed:{group:'down', name:'Weed', icon:'🌿', color:'#8a6bd1'},
+  nicotine:{group:'down', name:'Nicotine', icon:'🚬', color:'#e0894a'},
+  alcohol:{group:'down', name:'Alcohol', icon:'🍺', color:'#d4a017'}
+};
+const OLD = ['weed', 'nicotine', 'alcohol'];
+const ICONS = {
+  'Move':'🏃 🚶 🚴 🏊 🏋️ 🧘 ⚽ 🏀 🎾 🥊 🧗 💃 🥾 ⛷️ 🤸 🏓',
+  'Food & drink':'🥗 🍎 🍌 🥕 🥦 🍳 🍞 🍕 🍔 🍟 🍫 🍰 🍪 🍩 🍦 🥤 🧃 ☕ 🍵 💧',
+  'Mind & rest':'🧠 💭 🙏 🌙 😴 🛌 😊 📓 ✍️ 🎨 🎵 🎧 🎸 🧩 📖 💆 🛁 🕯️',
+  'Work & study':'💼 📚 🎓 💻 🛠️ 📝 📊 🔬 ✏️ 🗂️ 📅 💡 🎯 ⏰',
+  'Screens':'📱 📵 📺 🎮 🔔 📷 ▶️ 🎬',
+  'People':'👥 👪 ❤️ 📞 💬 🎉 🤝 🎁',
+  'Home & life':'🏠 🧹 🧺 🍽️ 🛒 🪴 🐶 🐱 🚗 🧼 🪥',
+  'Outdoors':'🌳 🌿 ☀️ 🌧️ 🌊 ⛰️ 🏕️ 🌸 🐦 🌅',
+  'Culture':'♞ ♟️ ♛ 🎭 🖼️ 🏛️ 🎻 🎷 🥁 🎤 🎼 🎬 📜 🏺 🗿 🪕 🗣️ 🌍',
+  'Games & crafts':'🃏 🎲 🧩 🧶 🧵 🪡 🔨 🪚 🔧 🧪 🔭 🪁 🎳 🏹',
+  'Adventure':'🧗 🤿 🏄 🛹 🪂 🛶 🤺 🥋 🏇 🧭 🗺️ 🚀 🌌',
+  'Habits':'🚬 🍺 🍷 🥃 💨 🎰 🛍️',
+  'Health & other':'💊 🩺 🦷 🧴 🌡️ 💰 📈 ✈️ ⭐ 🔥 💪 ✅ 🚫 ⚡ 🎲 📌 👀'
+};
+const SUGG = [
+  [/chess|board game|strategy/i,'♞ ♟️ ♛ 🎲'], [/museum|gallery|theat|concert|opera|culture/i,'🏛️ 🖼️ 🎭 🎻'],
+  [/craft|knit|sew|crochet/i,'🧶 🧵 🪡'], [/climb|dive|surf|skate|adventure|skydiv/i,'🧗 🤿 🏄 🛹 🪂'],
+  [/astro|star|telescope|space/i,'🔭 🌌 🚀'], [/fenc|martial|judo|karate/i,'🤺 🥋'], [/language|spanish|french|german|duolingo/i,'🗣️ 🌍'],
+  [/puzzle|card|poker/i,'🧩 🃏'], [/leaf|plant|green|herb/i,'🌿 🪴'],
+  [/phone|scroll|tiktok|insta|social media/i,'📱 📵'], [/screen|tv|netflix|youtube|series|video/i,'📺 ▶️'], [/game/i,'🎮'],
+  [/coffee|tea|caffeine/i,'☕ 🍵'], [/sugar|sweet|candy|choc|dessert/i,'🍫 🍰 🍩 🍦'], [/junk|fast food|snack|chips|burger|pizza/i,'🍔 🍟 🍕'],
+  [/water|hydrat/i,'💧'], [/sleep|nap|bed|rest|night/i,'😴 🛌 🌙'], [/read|book/i,'📚 📖'], [/study|learn|course|class|phd/i,'🎓 📝 💡'],
+  [/work|job|office/i,'💼 💻'], [/project|build|code|make/i,'🛠️ 💡 💻'], [/meditat|yoga|breath|calm|mindful|self/i,'🧘 🕯️ 🛁'],
+  [/walk|hike|steps/i,'🚶 🥾'], [/run|jog/i,'🏃'], [/bike|cycl/i,'🚴'], [/swim/i,'🏊'], [/gym|lift|workout|exercise|sport/i,'🏋️ 🏃 ⚽'],
+  [/friend|social|people|party/i,'👥 🎉 💬'], [/family|kid|mom|dad/i,'👪 ❤️'], [/call/i,'📞'], [/clean|chore|laundry|tidy/i,'🧹 🧺'],
+  [/cook|meal|veg|fruit/i,'🍳 🥗 🍎'], [/music|sing|guitar|piano/i,'🎵 🎸 🎧'], [/art|draw|paint|creat/i,'🎨 ✏️'], [/write|journal|diary/i,'✍️ 📓'],
+  [/outside|outdoor|nature|garden|sun/i,'🌳 ☀️ 🪴'], [/pet|dog|cat/i,'🐶 🐱'], [/money|save|budget|spend/i,'💰 📈'], [/travel|trip/i,'✈️ 🚗'],
+  [/med|vitamin|pill|doctor|health/i,'💊 🩺'], [/shop/i,'🛒'], [/pray|grateful|thank/i,'🙏'],
+  [/weed|cannabis|smok|nicotine|vape|cig/i,'🌿 🚬 💨'], [/alcohol|beer|wine|drink/i,'🍺 🍷 🥃']
+];
+const COLORS = ['#e11d48','#0891b2','#7c3aed','#059669','#db2777','#2563eb','#ea580c','#a16207'];
+const KEY = 'tally:v1', CKEY = 'tally:cats', GKEY = 'tally:groups', TKEY = 'tally:trash';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const total = o => Object.values(o).reduce((a, b) => a + b, 0);
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+
+function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data)); localStorage.setItem(CKEY, JSON.stringify(cats));
+    localStorage.setItem(GKEY, JSON.stringify(groups)); localStorage.setItem(TKEY, JSON.stringify(trash));
+  } catch (e) {}
+}
+
+let data = load(KEY) || {}, cats = load(CKEY), groups = load(GKEY) || DEFGROUPS.map(g => Object.assign({}, g)), trash = load(TKEY) || [];
+
+function adoptLegacy() {
+  for (const k in data) for (const id in data[k])
+    if (LEGACY[id] && !cats.some(c => c.id === id)) cats.push(Object.assign({id}, LEGACY[id]));
+}
+// Move a category, with all its counts, into the Deleted list.
+function trashCat(id) {
+  const cat = cats.find(c => c.id === id); if (!cat) return;
+  const counts = {};
+  for (const k in data) if (data[k][id]) { counts[k] = data[k][id]; delete data[k][id]; if (!Object.keys(data[k]).length) delete data[k]; }
+  trash.push({cat, grp: groups.find(g => g.id === cat.group) || null, counts, at: Date.now()});
+  cats = cats.filter(c => c.id !== id);
+}
+if (!cats) { cats = DEFAULTS.slice(); const o = load('tally:custom'); if (o) cats = cats.concat(o); adoptLegacy(); }
+if (!load('tally:mig5')) { OLD.forEach(trashCat); try { localStorage.setItem('tally:mig5', '1'); } catch (e) {} }
+save();
+
+const pad = n => String(n).padStart(2, '0');
+const keyOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const fromKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+const todayKey = () => keyOf(new Date());
+const $ = id => document.getElementById(id);
+const get = (k, a) => (data[k] && data[k][a]) || 0;
+let sel = todayKey(), viewMonth = fromKey(sel), editing = false;
+viewMonth.setDate(1);
+
+function change(a, delta) {
+  const v = Math.max(0, get(sel, a) + delta);
+  if (!data[sel]) data[sel] = {};
+  if (v === 0) delete data[sel][a]; else data[sel][a] = v;
+  if (!Object.keys(data[sel]).length) delete data[sel];
+  save();
+  if (delta > 0 && navigator.vibrate) navigator.vibrate(15);
+  render();
+}
+function goTo(k) { sel = k; const d = fromKey(k); viewMonth = new Date(d.getFullYear(), d.getMonth(), 1); render(); }
+function shiftDay(n) { const d = fromKey(sel); d.setDate(d.getDate() + n); goTo(keyOf(d)); }
+
+const pen = (k, id) => `<button class="pen" data-ed="${k}:${id}" aria-label="Edit">✎</button>`;
+const countRow = a => `<div class="row" style="--c:${a.color}"><span class="ico">${a.icon}</span><span class="name">${esc(a.name)}</span>
+  <button class="btn" data-a="${a.id}" data-d="-1" aria-label="Remove one">−</button><span class="count">${get(sel, a.id)}</span>
+  <button class="btn plus" style="background:${a.color}" data-a="${a.id}" data-d="1" aria-label="Add one">+</button></div>`;
+const editRow = a => `<div class="row" data-id="${a.id}" style="--c:${a.color}"><span class="grip" data-drag="c">⠿</span><span class="ico">${a.icon}</span><span class="name">${esc(a.name)}</span>${pen('c', a.id)}</div>`;
+
+function render() {
+  const d = fromKey(sel), t = todayKey();
+  const diff = Math.round((d - fromKey(t)) / 864e5);
+  $('big').textContent = diff === 0 ? 'Today' : diff === -1 ? 'Yesterday' : diff === 1 ? 'Tomorrow' : d.toLocaleDateString(undefined, {weekday:'long'});
+  $('sub').textContent = d.toLocaleDateString(undefined, {day:'numeric', month:'long', year:'numeric'});
+  $('goToday').style.visibility = diff === 0 ? 'hidden' : 'visible';
+  $('edit').textContent = editing ? 'Done' : 'Edit';
+  $('edit').classList.toggle('on', editing);
+
+  $('list').innerHTML = (editing ? '<div class="addtop"><button data-addgrp="1">＋ New section</button><button data-addsub="1">＋ New subsection</button></div>' : '')
+    + groups.map(g => {
+      const items = cats.filter(a => a.group === g.id);
+      return `<div class="sec" data-gid="${g.id}"><div class="gtitle">${editing ? '<span class="grip" data-drag="g">⠿</span>' : ''}<span class="gn">${g.icon} ${esc(g.name)}</span>${editing ? pen('g', g.id) : ''}</div>`
+        + items.map(editing ? editRow : countRow).join('')
+        + (!items.length ? `<div class="hint">${editing ? 'Empty. Drag a subsection here.' : 'Nothing here yet. Tap Edit to add one.'}</div>` : '')
+        + '</div>';
+    }).join('')
+    + (!groups.length ? '<div class="hint">No sections yet. Tap Edit, then “New section”.</div>' : '');
+
+  $('trash').innerHTML = editing && trash.length ? `<div class="gtitle"><span>🗑 Deleted</span></div><div class="hint">Restore brings back the category and its counts. “Delete forever” erases them for good.</div>`
+    + trash.map((x, i) => `<div class="row t" style="--c:${x.cat.color}"><span class="ico">${x.cat.icon}</span>
+      <span class="name">${esc(x.cat.name)}<span class="sm">${plural(total(x.counts), 'count')} saved</span></span>
+      <span class="ctl"><button data-rs="${i}">Restore</button><button class="red" data-ff="${i}">Delete forever</button></span></div>`).join('') : '';
+
+  const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+  $('mtitle').textContent = viewMonth.toLocaleDateString(undefined, {month:'long', year:'numeric'});
+  const first = (new Date(y, m, 1).getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+  let h = ['M','T','W','T','F','S','S'].map(x => `<div class="dow">${x}</div>`).join('');
+  for (let i = 0; i < first; i++) h += '<div class="cell empty"></div>';
+  for (let n = 1; n <= days; n++) {
+    const k = y + '-' + pad(m + 1) + '-' + pad(n);
+    const dots = cats.filter(a => get(k, a.id) > 0).map(a => `<i style="background:${a.color}"></i>`).join('');
+    h += `<button class="cell${k === sel ? ' sel' : ''}${k === t ? ' now' : ''}" data-k="${k}"><span>${n}</span><span class="dots">${dots}</span></button>`;
+  }
+  $('grid').innerHTML = h;
+  const prefix = y + '-' + pad(m + 1) + '-';
+  $('totals').innerHTML = cats.map(a => {
+    let s = 0;
+    for (const k in data) if (k.startsWith(prefix)) s += data[k][a.id] || 0;
+    return s ? `<span>${a.icon} <b style="color:${a.color}">${s}</b></span>` : '';
+  }).join('') || '<span style="color:var(--muted)">Nothing logged this month yet</span>';
+}
+
+// ----- actions -----
+function swap(arr, i, j) { [arr[i], arr[j]] = [arr[j], arr[i]]; }
+function move(k, id, n) {
+  if (k === 'g') { const i = groups.findIndex(g => g.id === id); if (groups[i + n]) swap(groups, i, i + n); }
+  else {
+    const i = cats.findIndex(c => c.id === id);
+    const same = cats.map((c, x) => c.group === cats[i].group ? x : -1).filter(x => x >= 0);
+    const j = same[same.indexOf(i) + n];
+    if (j !== undefined) swap(cats, i, j);
+  }
+  save(); render();
+}
+function remove(k, id) {
+  if (k === 'c') { trashCat(id); save(); render(); return; }
+  const g = groups.find(x => x.id === id), n = cats.filter(c => c.group === id).length;
+  const go = () => { cats.filter(c => c.group === id).forEach(c => trashCat(c.id)); groups = groups.filter(x => x.id !== id); save(); render(); };
+  n ? ask(`Delete the section “${g.name}”? Its ${plural(n, 'category').replace('categorys', 'categories')} will move to Deleted, where you can restore them.`, 'Delete section', go) : go();
+}
+function restore(i) {
+  const x = trash[i];
+  if (!groups.some(g => g.id === x.cat.group)) groups.push(x.grp || {id:x.cat.group, name:'Restored', icon:'📌'});
+  cats.push(x.cat);
+  for (const k in x.counts) { if (!data[k]) data[k] = {}; data[k][x.cat.id] = x.counts[k]; }
+  trash.splice(i, 1); save(); render();
+}
+function forever(i) {
+  const x = trash[i], n = total(x.counts), days = Object.keys(x.counts).length;
+  ask(`“${x.cat.name}” has ${plural(n, 'count')} over ${plural(days, 'day')}. If you delete it forever you will lose them forever and can’t get them back.`, 'Delete forever', () => { trash.splice(i, 1); save(); render(); });
+}
+let onYes = null;
+function ask(msg, label, fn) { $('dmsg').textContent = msg; $('dyes').textContent = label; onYes = fn; $('dlg').hidden = false; }
+$('dno').onclick = () => { $('dlg').hidden = true; onYes = null; };
+$('dyes').onclick = () => { $('dlg').hidden = true; const f = onYes; onYes = null; if (f) f(); };
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+  if (d.a) return change(d.a, +d.d);
+  if (d.k) return goTo(d.k);
+  if (d.mv) { const [k, id, n] = d.mv.split(':'); return move(k, id, +n); }
+  if (d.ed) { const [k, id] = d.ed.split(':'); return openSheet(k, id); }
+  if (d.rm) { const [k, id] = d.rm.split(':'); return remove(k, id); }
+  if (d.addcat) return openSheet('c', null, d.addcat);
+  if (d.addgrp) return openSheet('g');
+  if (d.addsub) return groups.length ? openSheet('c') : openSheet('g');
+  if (d.rs) return restore(+d.rs);
+  if (d.ff) return forever(+d.ff);
+});
+$('prev').onclick = () => shiftDay(-1);
+$('next').onclick = () => shiftDay(1);
+$('goToday').onclick = () => goTo(todayKey());
+$('mprev').onclick = () => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1); render(); };
+$('mnext').onclick = () => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1); render(); };
+$('edit').onclick = () => { editing = !editing; render(); };
+
+let sx = null;
+$('list').addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, {passive:true});
+$('list').addEventListener('touchend', e => {
+  if (sx === null || editing) { sx = null; return; }
+  const dx = e.changedTouches[0].clientX - sx; sx = null;
+  if (Math.abs(dx) > 70) shiftDay(dx < 0 ? 1 : -1);
+});
+
+// ----- drag to reorder (grab the ⠿ handle in edit mode) -----
+let drag = null, scrollTimer = null, lastX = 0, lastY = 0;
+function place() {
+  if (!drag) return; const el = drag.el;
+  el.style.transform = `translateY(${lastY - drag.y0 + scrollY - drag.s0}px)`;
+  document.querySelectorAll('.mk-b,.mk-a,.mk-s').forEach(n => n.classList.remove('mk-b', 'mk-a', 'mk-s'));
+  drag.to = null;
+  const t = document.elementsFromPoint(lastX, lastY).find(n => !el.contains(n));
+  if (!t) return;
+  const row = drag.kind === 'c' ? t.closest('.row[data-id]') : null, sec = t.closest('.sec');
+  if (row) { const r = row.getBoundingClientRect(), after = lastY > r.top + r.height / 2; row.classList.add(after ? 'mk-a' : 'mk-b'); drag.to = {id: row.dataset.id, after}; }
+  else if (sec && sec !== el) {
+    if (drag.kind === 'c') { sec.classList.add('mk-s'); drag.to = {gid: sec.dataset.gid}; }
+    else { const r = sec.getBoundingClientRect(), after = lastY > r.top + r.height / 2; sec.classList.add(after ? 'mk-a' : 'mk-b'); drag.to = {id: sec.dataset.gid, after}; }
+  }
+}
+function endDrag(commit) {
+  if (!drag) return; clearInterval(scrollTimer);
+  const {kind, id, to} = drag; drag = null;
+  if (commit && to) {
+    if (kind === 'c') {
+      const c = cats.find(x => x.id === id); cats = cats.filter(x => x !== c);
+      if (to.id) { const tg = cats.find(x => x.id === to.id); c.group = tg.group; cats.splice(cats.indexOf(tg) + (to.after ? 1 : 0), 0, c); }
+      else { c.group = to.gid; cats.push(c); }
+    } else {
+      const g = groups.find(x => x.id === id); groups = groups.filter(x => x !== g);
+      const tg = groups.find(x => x.id === to.id); groups.splice(groups.indexOf(tg) + (to.after ? 1 : 0), 0, g);
+    }
+    save();
+  }
+  render();
+}
+document.addEventListener('pointerdown', e => {
+  const g = e.target.closest('.grip'); if (!g) return;
+  e.preventDefault();
+  const kind = g.dataset.drag, el = g.closest(kind === 'c' ? '.row' : '.sec');
+  drag = {kind, id: kind === 'c' ? el.dataset.id : el.dataset.gid, el, y0: e.clientY, s0: scrollY, to: null};
+  lastX = e.clientX; lastY = e.clientY;
+  el.classList.add('dragging'); g.setPointerCapture(e.pointerId);
+  scrollTimer = setInterval(() => {
+    if (lastY < 90) { scrollBy(0, -14); place(); } else if (lastY > innerHeight - 90) { scrollBy(0, 14); place(); }
+  }, 30);
+});
+document.addEventListener('pointermove', e => { if (drag) { lastX = e.clientX; lastY = e.clientY; place(); } });
+document.addEventListener('pointerup', () => endDrag(true));
+document.addEventListener('pointercancel', () => endDrag(false));
+
+// ----- add / edit sheet (categories and sections) -----
+let ed = null, selIcon = '', selGroup = '', manual = false;
+const btns = list => list.map(i => `<button data-i="${i}" class="${i === selIcon ? 'on' : ''}">${i}</button>`).join('');
+function drawIcons() {
+  let sug = [];
+  SUGG.forEach(([re, s]) => { if (re.test($('nm').value)) sug = sug.concat(s.split(' ')); });
+  sug = Array.from(new Set(sug));
+  if (!manual) selIcon = sug[0] || '⭐';
+  let h = sug.length ? `<div class="gl">Suggested</div><div class="icons">${btns(sug)}</div>` : '';
+  for (const g in ICONS) h += `<div class="gl">${g}</div><div class="icons">${btns(ICONS[g].split(' '))}</div>`;
+  $('icons').innerHTML = h;
+}
+function drawSeg() {
+  $('seg').hidden = ed.kind !== 'c';
+  $('seg').innerHTML = groups.map(g => `<button data-g="${g.id}" class="${g.id === selGroup ? 'on' : ''}">${g.icon} ${esc(g.name)}</button>`).join('');
+}
+function openSheet(kind, id, group) {
+  ed = {kind, id};
+  const item = id ? (kind === 'c' ? cats : groups).find(x => x.id === id) : null;
+  $('stitle').textContent = (id ? 'Edit ' : 'New ') + (kind === 'c' ? 'category' : 'section');
+  $('nm').value = item ? item.name : ''; $('em').value = '';
+  selIcon = item ? item.icon : ''; manual = !!item;
+  selGroup = item ? item.group : (group || (groups[0] && groups[0].id));
+  $('del').hidden = !id; drawSeg(); drawIcons(); $('sheet').hidden = false;
+  if (!item) $('nm').focus();
+}
+$('nm').oninput = drawIcons;
+$('icons').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) { selIcon = b.dataset.i; manual = true; $('em').value = ''; drawIcons(); } };
+$('seg').onclick = e => { const b = e.target.closest('button[data-g]'); if (b) { selGroup = b.dataset.g; drawSeg(); } };
+$('cancel').onclick = () => { $('sheet').hidden = true; };
+$('del').onclick = () => { $('sheet').hidden = true; remove(ed.kind, ed.id); };
+$('save').onclick = () => {
+  const name = $('nm').value.trim();
+  if (!name) { $('nm').focus(); return; }
+  const icon = $('em').value.trim() || selIcon || '⭐';
+  if (ed.kind === 'g') {
+    const g = ed.id && groups.find(x => x.id === ed.id);
+    if (g) { g.name = name; g.icon = icon; } else groups.push({id:'g' + Date.now(), name, icon});
+  } else {
+    const c = ed.id && cats.find(x => x.id === ed.id);
+    if (c) { c.name = name; c.icon = icon; c.group = selGroup; }
+    else cats.push({group:selGroup, id:'c' + Date.now(), name, icon, color:COLORS[cats.length % COLORS.length]});
+  }
+  save(); $('sheet').hidden = true; render();
+};
+
+// ----- backup -----
+$('exp').onclick = () => {
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({v:4, data, cats, groups, trash})], {type:'application/json'}));
+    a.download = 'aware-backup.json'; a.click();
+  } catch (e) { alert('Export isn’t available here. It works once the app is on your own site.'); }
+};
+$('imp').onclick = () => $('file').click();
+$('file').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const o = JSON.parse(r.result); if (typeof o !== 'object') throw 0;
+      if (o.v === 4) { data = o.data || {}; cats = o.cats || []; groups = o.groups || DEFGROUPS.slice(); trash = o.trash || []; }
+      else {
+        groups = DEFGROUPS.map(g => Object.assign({}, g)); trash = [];
+        if (o.v === 3) { data = o.data || {}; cats = o.cats || DEFAULTS.slice(); }
+        else if (o.v === 2) { data = o.data || {}; cats = DEFAULTS.concat(o.custom || []); }
+        else { data = o; cats = DEFAULTS.slice(); }
+        adoptLegacy(); OLD.forEach(trashCat);
+      }
+      save(); render();
+    } catch (err) { alert('That file isn’t a valid backup.'); }
+  };
+  r.readAsText(f);
+};
+
+render();
+</script>
+</body>
+</html>
