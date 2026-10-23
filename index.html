@@ -453,6 +453,10 @@ $('file').onchange = e => {
   r.readAsText(f);
 };
 
+// offline support: needs service-worker.js next to this file (ignored if it isn’t there)
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('service-worker.js').catch(() => {});
+}
 render();
 </script>
 </body>
