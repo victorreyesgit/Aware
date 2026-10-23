@@ -76,6 +76,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .mk-b{box-shadow:0 -3px 0 0 var(--accent)}.mk-a{box-shadow:0 3px 0 0 var(--accent)}.mk-s{outline:2px dashed var(--accent);outline-offset:2px}
 .addtop{display:flex;gap:10px;margin:6px 0 18px}
 .addtop button{flex:1;height:48px;border:2px dashed var(--line);border-radius:14px;font-size:15px;font-weight:600}
+.dayline{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.dayline .dl{font-size:13px;color:var(--muted);margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:color-mix(in srgb,var(--c) 18%,transparent);font-size:15px}
+.chip b{color:var(--c)}
+.ihead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:14px}
+.pill.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.igroup{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px}
+.cell.in{background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:4px}
+.cell.rs{background:color-mix(in srgb,var(--accent) 30%,transparent);border-color:var(--accent);font-weight:700}
+.cell.in.sel,.cell.rs.sel{background:var(--accent);color:var(--bg)}
 </style>
 </head>
 <body>
@@ -91,9 +103,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
   <div class="card">
     <div class="mhead"><button id="mprev" aria-label="Previous month">‹</button><b id="mtitle"></b><button id="mnext" aria-label="Next month">›</button></div>
     <div class="grid" id="grid"></div>
-    <div class="totals" id="totals"></div>
+    <div class="dayline" id="dayline"></div>
+  </div>
+  <div class="card">
+    <div class="ihead">
+      <div><b>Totals</b><div class="sub" id="irange"></div></div>
+      <div style="display:flex;gap:6px"><button class="pill" id="ireset" hidden>Month</button><button class="pill" id="ichange">Change dates</button></div>
+    </div>
+    <div id="itotals"></div>
   </div>
   <div class="tools"><button id="exp">Export backup</button><button id="imp">Import backup</button></div>
+  <div class="hint" id="ver" style="text-align:center"></div>
   <input type="file" id="file" accept="application/json" hidden>
 </main>
 
@@ -206,6 +226,7 @@ const todayKey = () => keyOf(new Date());
 const $ = id => document.getElementById(id);
 const get = (k, a) => (data[k] && data[k][a]) || 0;
 let sel = todayKey(), viewMonth = fromKey(sel), editing = false;
+let range = null, picking = 0, pickStart = null;
 viewMonth.setDate(1);
 
 function change(a, delta) {
@@ -258,15 +279,10 @@ function render() {
   for (let n = 1; n <= days; n++) {
     const k = y + '-' + pad(m + 1) + '-' + pad(n);
     const dots = cats.filter(a => get(k, a.id) > 0).map(a => `<i style="background:${a.color}"></i>`).join('');
-    h += `<button class="cell${k === sel ? ' sel' : ''}${k === t ? ' now' : ''}" data-k="${k}"><span>${n}</span><span class="dots">${dots}</span></button>`;
+    h += `<button class="cell${rangeCls(k)}${k === t ? ' now' : ''}" data-k="${k}"><span>${n}</span><span class="dots">${dots}</span></button>`;
   }
   $('grid').innerHTML = h;
-  const prefix = y + '-' + pad(m + 1) + '-';
-  $('totals').innerHTML = cats.map(a => {
-    let s = 0;
-    for (const k in data) if (k.startsWith(prefix)) s += data[k][a.id] || 0;
-    return s ? `<span>${a.icon} <b style="color:${a.color}">${s}</b></span>` : '';
-  }).join('') || '<span style="color:var(--muted)">Nothing logged this month yet</span>';
+  drawSummary();
 }
 
 // ----- actions -----
@@ -306,7 +322,7 @@ $('dyes').onclick = () => { $('dlg').hidden = true; const f = onYes; onYes = nul
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
   if (d.a) return change(d.a, +d.d);
-  if (d.k) return goTo(d.k);
+  if (d.k) return pickDate(d.k);
   if (d.mv) { const [k, id, n] = d.mv.split(':'); return move(k, id, +n); }
   if (d.ed) { const [k, id] = d.ed.split(':'); return openSheet(k, id); }
   if (d.rm) { const [k, id] = d.rm.split(':'); return remove(k, id); }
@@ -322,6 +338,49 @@ $('goToday').onclick = () => goTo(todayKey());
 $('mprev').onclick = () => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1); render(); };
 $('mnext').onclick = () => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1); render(); };
 $('edit').onclick = () => { editing = !editing; render(); };
+
+// ----- selected day + interval totals -----
+const fmtD = k => fromKey(k).toLocaleDateString(undefined, {day:'numeric', month:'short', year:'numeric'});
+function bounds() {
+  if (range) return range;
+  const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+  return [y + '-' + pad(m + 1) + '-01', y + '-' + pad(m + 1) + '-' + pad(new Date(y, m + 1, 0).getDate())];
+}
+function rangeCls(k) {
+  let c = '';
+  if (!picking && k === sel) c += ' sel';
+  if (picking === 2 && k === pickStart) c += ' rs';
+  else if (range && k >= range[0] && k <= range[1]) c += (k === range[0] || k === range[1]) ? ' rs' : ' in';
+  return c;
+}
+function pickDate(k) {
+  if (picking === 1) { pickStart = k; picking = 2; render(); }
+  else if (picking === 2) { range = k < pickStart ? [k, pickStart] : [pickStart, k]; picking = 0; pickStart = null; render(); }
+  else goTo(k);
+}
+function drawSummary() {
+  const dc = data[sel] || {};
+  const dayChips = cats.filter(a => dc[a.id]).map(a => `<span class="chip" style="--c:${a.color}">${a.icon} <b>${dc[a.id]}</b></span>`).join('');
+  $('dayline').innerHTML = `<div class="dl">${fromKey(sel).toLocaleDateString(undefined, {weekday:'long', day:'numeric', month:'long'})}</div>`
+    + (dayChips ? `<div class="chips">${dayChips}</div>` : '<div class="hint" style="padding:0">Nothing logged this day.</div>');
+  const [a0, a1] = bounds(), sums = {}; let days = 0;
+  for (const k in data) if (k >= a0 && k <= a1) {
+    const ids = Object.keys(data[k]); if (ids.length) days++;
+    ids.forEach(id => { sums[id] = (sums[id] || 0) + data[k][id]; });
+  }
+  $('irange').textContent = picking === 1 ? 'Tap the first date in the calendar' : picking === 2 ? 'Now tap the last date'
+    : range ? fmtD(a0) + ' – ' + fmtD(a1) : viewMonth.toLocaleDateString(undefined, {month:'long', year:'numeric'});
+  $('ichange').textContent = picking ? 'Cancel' : 'Change dates';
+  $('ichange').classList.toggle('on', !!picking);
+  $('ireset').hidden = !range || !!picking;
+  const body = groups.map(g => {
+    const items = cats.filter(c => c.group === g.id && sums[c.id]);
+    return items.length ? `<div class="igroup">${g.icon} ${esc(g.name)}</div><div class="chips">${items.map(c => `<span class="chip" style="--c:${c.color}">${c.icon} <b>${sums[c.id]}</b></span>`).join('')}</div>` : '';
+  }).join('');
+  $('itotals').innerHTML = picking ? '' : body ? body + `<div class="hint">${plural(days, 'day')} with entries</div>` : '<div class="hint">Nothing logged in this period.</div>';
+}
+$('ichange').onclick = () => { picking = picking ? 0 : 1; pickStart = null; render(); };
+$('ireset').onclick = () => { range = null; render(); };
 
 let sx = null;
 $('list').addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, {passive:true});
@@ -454,8 +513,12 @@ $('file').onchange = e => {
 };
 
 // offline support: needs service-worker.js next to this file (ignored if it isn’t there)
+const VERSION = 'v3'; let offlineOk = false;
+function showVer(extra) { $('ver').textContent = 'Aware ' + VERSION + (offlineOk ? ' · offline ready ✓' : '') + (extra || ''); }
+showVer();
+window.addEventListener('error', e => showVer(' · error: ' + e.message));
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  navigator.serviceWorker.register('service-worker.js').then(() => navigator.serviceWorker.ready).then(() => { offlineOk = true; showVer(); }).catch(() => {});
 }
 render();
 </script>
