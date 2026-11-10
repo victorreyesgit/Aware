@@ -88,6 +88,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .cell.in{background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:4px}
 .cell.rs{background:color-mix(in srgb,var(--accent) 30%,transparent);border-color:var(--accent);font-weight:700}
 .cell.in.sel,.cell.rs.sel{background:var(--accent);color:var(--bg)}
+.fbar{display:flex;gap:6px;margin:0 0 8px}
+.fpanel{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.fpanel[hidden]{display:none}
+.fchip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);font-size:14px}
+.fchip.on{background:color-mix(in srgb,var(--c) 22%,transparent);border-color:var(--c)}
+.fi{font-size:10px;line-height:1;text-align:center}
+.fi b{font-size:11px;color:var(--c);margin-left:1px}
+.cell.sel .fi b{color:inherit}
 </style>
 </head>
 <body>
@@ -102,6 +110,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
   <div id="trash"></div>
   <div class="card">
     <div class="mhead"><button id="mprev" aria-label="Previous month">‹</button><b id="mtitle"></b><button id="mnext" aria-label="Next month">›</button></div>
+    <div class="fbar"><button class="pill" id="fbtn">Filter</button><button class="pill" id="fclear" hidden>Clear</button></div>
+    <div class="fpanel" id="fpanel" hidden></div>
     <div class="grid" id="grid"></div>
     <div class="dayline" id="dayline"></div>
   </div>
@@ -227,6 +237,7 @@ const $ = id => document.getElementById(id);
 const get = (k, a) => (data[k] && data[k][a]) || 0;
 let sel = todayKey(), viewMonth = fromKey(sel), editing = false;
 let range = null, picking = 0, pickStart = null;
+let filt = new Set(), fopen = false;
 viewMonth.setDate(1);
 
 function change(a, delta) {
@@ -248,6 +259,7 @@ const countRow = a => `<div class="row" style="--c:${a.color}"><span class="ico"
 const editRow = a => `<div class="row" data-id="${a.id}" style="--c:${a.color}"><span class="grip" data-drag="c">⠿</span><span class="ico">${a.icon}</span><span class="name">${esc(a.name)}</span>${pen('c', a.id)}</div>`;
 
 function render() {
+  drawFilter();
   const d = fromKey(sel), t = todayKey();
   const diff = Math.round((d - fromKey(t)) / 864e5);
   $('big').textContent = diff === 0 ? 'Today' : diff === -1 ? 'Yesterday' : diff === 1 ? 'Tomorrow' : d.toLocaleDateString(undefined, {weekday:'long'});
@@ -278,7 +290,9 @@ function render() {
   for (let i = 0; i < first; i++) h += '<div class="cell empty"></div>';
   for (let n = 1; n <= days; n++) {
     const k = y + '-' + pad(m + 1) + '-' + pad(n);
-    const dots = cats.filter(a => get(k, a.id) > 0).map(a => `<i style="background:${a.color}"></i>`).join('');
+    const fl = cats.filter(a => (!filt.size || filt.has(a.id)) && get(k, a.id) > 0);
+    const dots = !filt.size ? fl.map(a => `<i style="background:${a.color}"></i>`).join('')
+      : !fl.length ? '' : filt.size === 1 ? `<span class="fi" style="--c:${fl[0].color}">${fl[0].icon}<b>${get(k, fl[0].id)}</b></span>` : `<span class="fi">${fl.map(a => a.icon).join('')}</span>`;
     h += `<button class="cell${rangeCls(k)}${k === t ? ' now' : ''}" data-k="${k}"><span>${n}</span><span class="dots">${dots}</span></button>`;
   }
   $('grid').innerHTML = h;
@@ -322,6 +336,7 @@ $('dyes').onclick = () => { $('dlg').hidden = true; const f = onYes; onYes = nul
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
   if (d.a) return change(d.a, +d.d);
+  if (d.f) { if (filt.has(d.f)) filt.delete(d.f); else filt.add(d.f); return render(); }
   if (d.k) return pickDate(d.k);
   if (d.mv) { const [k, id, n] = d.mv.split(':'); return move(k, id, +n); }
   if (d.ed) { const [k, id] = d.ed.split(':'); return openSheet(k, id); }
@@ -365,7 +380,7 @@ function drawSummary() {
     + (dayChips ? `<div class="chips">${dayChips}</div>` : '<div class="hint" style="padding:0">Nothing logged this day.</div>');
   const [a0, a1] = bounds(), sums = {}; let days = 0;
   for (const k in data) if (k >= a0 && k <= a1) {
-    const ids = Object.keys(data[k]); if (ids.length) days++;
+    const ids = Object.keys(data[k]).filter(id => !filt.size || filt.has(id)); if (ids.length) days++;
     ids.forEach(id => { sums[id] = (sums[id] || 0) + data[k][id]; });
   }
   $('irange').textContent = picking === 1 ? 'Tap the first date in the calendar' : picking === 2 ? 'Now tap the last date'
@@ -382,13 +397,17 @@ function drawSummary() {
 $('ichange').onclick = () => { picking = picking ? 0 : 1; pickStart = null; render(); };
 $('ireset').onclick = () => { range = null; render(); };
 
-let sx = null;
-$('list').addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, {passive:true});
-$('list').addEventListener('touchend', e => {
-  if (sx === null || editing) { sx = null; return; }
-  const dx = e.changedTouches[0].clientX - sx; sx = null;
-  if (Math.abs(dx) > 70) shiftDay(dx < 0 ? 1 : -1);
-});
+// ----- calendar filter: show only some habits -----
+function drawFilter() {
+  filt.forEach(id => { if (!cats.some(c => c.id === id)) filt.delete(id); });
+  $('fbtn').textContent = filt.size ? 'Filter · ' + filt.size : 'Filter';
+  $('fbtn').classList.toggle('on', fopen || filt.size > 0);
+  $('fclear').hidden = !filt.size;
+  $('fpanel').hidden = !fopen;
+  $('fpanel').innerHTML = cats.map(a => `<button class="fchip${filt.has(a.id) ? ' on' : ''}" style="--c:${a.color}" data-f="${a.id}">${a.icon} ${esc(a.name)}</button>`).join('');
+}
+$('fbtn').onclick = () => { fopen = !fopen; render(); };
+$('fclear').onclick = () => { filt.clear(); render(); };
 
 // ----- drag to reorder (grab the ⠿ handle in edit mode) -----
 let drag = null, scrollTimer = null, lastX = 0, lastY = 0;
@@ -520,6 +539,44 @@ window.addEventListener('error', e => showVer(' · error: ' + e.message));
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('service-worker.js').then(() => navigator.serviceWorker.ready).then(() => { offlineOk = true; showVer(); }).catch(() => {});
 }
+// ----- app icon (lightbulb) + install info, all generated here so no extra files are needed -----
+function makeIcon(size) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const x = c.getContext('2d'); x.scale(size / 512, size / 512);
+  const g = x.createLinearGradient(0, 0, 0, 512); g.addColorStop(0, '#2b2a4a'); g.addColorStop(1, '#14131f');
+  x.fillStyle = g; x.fillRect(0, 0, 512, 512);
+  const r = x.createRadialGradient(256, 230, 20, 256, 230, 230); r.addColorStop(0, 'rgba(255,213,74,.45)'); r.addColorStop(1, 'rgba(255,213,74,0)');
+  x.fillStyle = r; x.fillRect(0, 0, 512, 512);
+  x.strokeStyle = '#ffd54a'; x.lineWidth = 12; x.lineCap = 'round';
+  [-45, -135, 0, 180].forEach(a => { const t = a * Math.PI / 180; x.beginPath(); x.moveTo(256 + 118 * Math.cos(t), 214 + 118 * Math.sin(t)); x.lineTo(256 + 142 * Math.cos(t), 214 + 142 * Math.sin(t)); x.stroke(); });
+  x.fillStyle = '#ffd54a';
+  x.beginPath(); x.arc(256, 214, 92, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.moveTo(190, 270); x.lineTo(322, 270); x.lineTo(296, 335); x.lineTo(216, 335); x.closePath(); x.fill();
+  x.fillStyle = '#d9dbe3';
+  [[214, 345, 84], [224, 367, 64]].forEach(([a, b, w]) => { x.beginPath(); x.roundRect(a, b, w, 14, 7); x.fill(); });
+  x.beginPath(); x.arc(256, 372, 18, 0, Math.PI); x.fill();
+  x.strokeStyle = '#1d1d1b'; x.lineWidth = 16; x.lineJoin = 'round'; x.lineCap = 'round';
+  x.beginPath(); x.moveTo(222, 214); x.lineTo(247, 240); x.lineTo(292, 190); x.stroke();
+  return c.toDataURL('image/png');
+}
+function setLink(rel, href, extra) {
+  let l = document.querySelector(`link[rel="${rel}"]`);
+  if (!l) { l = document.createElement('link'); l.rel = rel; document.head.appendChild(l); }
+  l.href = href; if (extra) l.type = extra;
+}
+try {
+  setLink('apple-touch-icon', makeIcon(180));
+  setLink('icon', makeIcon(64), 'image/png');
+  if (location.protocol.startsWith('http')) {
+    const man = {
+      name: 'Aware', short_name: 'Aware', display: 'standalone',
+      start_url: location.href.split('#')[0], scope: location.href.replace(/[^/]*$/, ''),
+      background_color: '#14131f', theme_color: '#14131f',
+      icons: [{src: makeIcon(192), sizes: '192x192', type: 'image/png', purpose: 'any maskable'}, {src: makeIcon(512), sizes: '512x512', type: 'image/png', purpose: 'any maskable'}]
+    };
+    setLink('manifest', URL.createObjectURL(new Blob([JSON.stringify(man)], {type: 'application/manifest+json'})));
+  }
+} catch (e) {}
 render();
 </script>
 </body>
