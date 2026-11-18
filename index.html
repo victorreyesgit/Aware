@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aware</title>
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACaElEQVR42u3dz00CQRTAYTA0wJlsB3igABJqoBMq2FCBnVDDJhbgQfvYFjzowYMSZMnOm3nf72qCuPvluTPLn2XXbRbSbz05BIJDcAgOwSE4BIfgEByCQ3BIcAgOwSE4BIfgEByCQ3AIDgkOwSE4BIfgEByCQ3AIDsEhwSE4BIfgEByCQ3AIDsEhOASHBIfgEByCQ3AIDsGh2lvFfFof729//Wj7vJvzQQI+jskhOASH4BAcgkNwSHAIDsGRovX5UPC3r5wALEyOmlj8lFFQiclhWpgcVU2LIGhMjsLtL6ewzw2OOlisz4exH+DAwuTA4v/XJTMPDzjmu+ScImP+/ylwVLBALcICDizgwAIOLODAAo5MLF6PLzHf1ARHYRaR/zo47mziLmdwFnBgAQcWcERm8b0SOS7gaO2Ss7p7InBEX4lUzQIOLODAAg4s4Agno0kWcExlEfaeCByFWWQ4RBlx7C+nu2UkYZERx5TtrFQscuHAAo4Hs6j0nggcs7DIXZs47GjBgQUcWMCBBRxYwIEFHNWx+NrR2vY7574pHNle/A0HFnBgAUccFmM/XPk2RtWKI/NbReCwQIUDCziwgAMLOLBQKRytfnwWHA9o7If7fNjOyr6UxSI7jtuHBxYmBxZBK/Mdb1eWG2M/WIyYHBaoJscNFEwLk8O0MDnIgENwCA4JDsEhOASH4BAcqqRl120cBZkcgkNwCA7BITgEh+AQHIJDgkNwCA7BITgEh+AQHIJDcEhwCA7BITgEh+AQHIJDcAgOwSHBITgEh+AQHIJDcAgOwSE4JDgEh+AQHIJDcAgOwaE2+wR2eMvn2T/p9QAAAABJRU5ErkJggg==">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1d1d1b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -565,17 +567,7 @@ function setLink(rel, href, extra) {
   l.href = href; if (extra) l.type = extra;
 }
 try {
-  setLink('apple-touch-icon', makeIcon(180));
   setLink('icon', makeIcon(64), 'image/png');
-  if (location.protocol.startsWith('http')) {
-    const man = {
-      name: 'Aware', short_name: 'Aware', display: 'standalone',
-      start_url: location.href.split('#')[0], scope: location.href.replace(/[^/]*$/, ''),
-      background_color: '#14131f', theme_color: '#14131f',
-      icons: [{src: makeIcon(192), sizes: '192x192', type: 'image/png', purpose: 'any maskable'}, {src: makeIcon(512), sizes: '512x512', type: 'image/png', purpose: 'any maskable'}]
-    };
-    setLink('manifest', URL.createObjectURL(new Blob([JSON.stringify(man)], {type: 'application/manifest+json'})));
-  }
 } catch (e) {}
 render();
 </script>
