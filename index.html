@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aware</title>
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <meta name="theme-color" content="#1d1d1b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -98,6 +98,47 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .fi{font-size:10px;line-height:1;text-align:center}
 .fi b{font-size:11px;color:var(--c);margin-left:1px}
 .cell.sel .fi b{color:inherit}
+.mode{display:inline-block;font-size:12px;font-weight:700;color:var(--c);margin-top:1px}
+.lvs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lvs label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.lvs input{font-size:15px;padding:9px}
+button.ico{border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
+button.ico:active{transform:scale(.92)}
+.mslot{display:flex;gap:8px;margin-bottom:8px}
+.mslot .mc{width:52px;height:44px;padding:3px;flex:none}
+.row.caged{border:4px solid var(--cage);box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 20%,transparent)}
+.icowrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;width:60px}
+.mname{font-size:10px;line-height:1.1;font-weight:700;text-align:center;color:var(--muted);overflow-wrap:anywhere;max-width:62px}
+.mname:empty{display:none}
+.msw{width:34px;height:34px;border-radius:10px;flex:none;align-self:center;border:1px solid var(--line)}
+.dots i{box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 18%,transparent)}
+.ico.caged{border:4px solid var(--cage);box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 22%,transparent)}
+.minis{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.minis:empty{display:none}
+.mini{font-size:11px;font-weight:700;border:2px solid var(--cage);border-radius:8px;padding:0 5px;line-height:16px}
+.chip.fr{border:2px solid var(--cage);padding:4px 9px}
+.fx{display:inline-flex;align-items:center;gap:1px;border:2px solid var(--cage);border-radius:6px;padding:0 2px;font-size:10px;line-height:14px}
+.fx b{font-size:10px}
+.cell{overflow:hidden}
+.fpanel .pill{padding:5px 12px;font-size:14px}
+.rg{margin-bottom:10px}.rg>.row{margin-bottom:0}
+.sub{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px;margin:6px 0 0 20px}
+.sub .ico{width:36px;height:36px;font-size:19px}
+.sub .name{font-size:16px}
+.sub .btn{width:44px;height:44px;font-size:24px}
+.sub .count{font-size:22px;min-width:28px}
+.btn:disabled{opacity:.3;cursor:default}.btn:disabled:active{transform:none}
+.row{position:relative}
+.row .arr{position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--muted);pointer-events:none}
+.row .arr.ei{position:static;transform:none;width:12px;text-align:center;flex:none}
+.sd{margin:6px 0 0 20px;width:calc(100% - 20px);height:40px}
+.fx{border:0;padding:0 3px}
+.par{font-size:13px;color:var(--muted);font-weight:400}
+.grid.detail{gap:3px}
+.grid.detail .cell{aspect-ratio:auto;min-height:58px;overflow:visible;justify-content:flex-start;gap:3px;padding:4px 1px}
+.grid.detail .dots{min-height:0;gap:2px 3px;flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:flex-start}
+.grid.detail .fx{font-size:12px;line-height:15px;padding:0;gap:1px;white-space:nowrap}
+.grid.detail .fx b{font-size:11px}
 </style>
 </head>
 <body>
@@ -112,7 +153,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
   <div id="trash"></div>
   <div class="card">
     <div class="mhead"><button id="mprev" aria-label="Previous month">‹</button><b id="mtitle"></b><button id="mnext" aria-label="Next month">›</button></div>
-    <div class="fbar"><button class="pill" id="fbtn">Filter</button><button class="pill" id="fclear" hidden>Clear</button></div>
+    <div class="fbar"><button class="pill" id="fbtn">Filter</button><button class="pill" id="fdetail">Detail</button><button class="pill" id="fclear" hidden>Clear</button></div>
     <div class="fpanel" id="fpanel" hidden></div>
     <div class="grid" id="grid"></div>
     <div class="dayline" id="dayline"></div>
@@ -134,6 +175,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
     <h3 id="stitle"></h3>
     <input id="nm" placeholder="Name" maxlength="22" autocomplete="off">
     <div class="seg" id="seg"></div>
+    <div id="catx">
+      <div class="gl">Private note · only visible here</div>
+      <input id="note" placeholder="e.g. 1 = a glass of wine or a beer" maxlength="60" autocomplete="off">
+          </div>
     <div id="icons"></div>
     <div class="gl">Or your own emoji</div>
     <input id="em" placeholder="Paste or type any emoji" maxlength="6">
@@ -150,14 +195,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 <script>
 const DEFGROUPS = [{id:'up', name:'Boosters', icon:'⚡'}, {id:'down', name:'Observed', icon:'👀'}];
 const DEFAULTS = [
-  {group:'up', id:'sports', name:'Exercise', icon:'🏃', color:'#2e9e5b'},
+  {group:'up', id:'sports', modes:[{n:'Gym', i:'🏋️'}, {n:'Walk', i:'🚶'}], name:'Exercise', icon:'🏃', color:'#2e9e5b'},
   {group:'up', id:'nature', name:'Outdoors', icon:'🌳', color:'#65a30d'},
   {group:'up', id:'food', name:'Healthy food', icon:'🥗', color:'#ef6c57'},
   {group:'up', id:'reading', name:'Reading', icon:'📚', color:'#3b82d6'},
   {group:'up', id:'mindfulness', name:'Self-care', icon:'🧘', color:'#d65a8a'},
-  {group:'down', id:'phone', name:'Phone use', icon:'📱', color:'#8a6bd1'},
+  {group:'down', id:'phone', modes:[{n:'Social media', i:'💬'}, {n:'Video', i:'📺'}], name:'Phone use', icon:'📱', color:'#8a6bd1'},
   {group:'down', id:'sweets', name:'Sweets', icon:'🍫', color:'#a16207'},
-  {group:'down', id:'caffeine', name:'Caffeine', icon:'☕', color:'#e0894a'}
+  {group:'down', id:'caffeine', note:'1 = one cup of coffee or tea', name:'Caffeine', icon:'☕', color:'#e0894a'}
 ];
 // Only used to rescue data from older backups. OLD ones go straight to "Deleted".
 const LEGACY = {
@@ -200,20 +245,20 @@ const SUGG = [
   [/weed|cannabis|smok|nicotine|vape|cig/i,'🌿 🚬 💨'], [/alcohol|beer|wine|drink/i,'🍺 🍷 🥃']
 ];
 const COLORS = ['#e11d48','#0891b2','#7c3aed','#059669','#db2777','#2563eb','#ea580c','#a16207'];
-const KEY = 'tally:v1', CKEY = 'tally:cats', GKEY = 'tally:groups', TKEY = 'tally:trash';
+const KEY = 'tally:v1', CKEY = 'tally:cats', GKEY = 'tally:groups', TKEY = 'tally:trash', MKEY = 'tally:modes';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const total = o => Object.values(o).reduce((a, b) => a + b, 0);
+const total = o => Object.values(o).reduce((a, b) => a + (typeof b === 'object' ? total(b) : b), 0);
 const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
 
 function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
 function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(data)); localStorage.setItem(CKEY, JSON.stringify(cats));
-    localStorage.setItem(GKEY, JSON.stringify(groups)); localStorage.setItem(TKEY, JSON.stringify(trash));
+    localStorage.setItem(GKEY, JSON.stringify(groups)); localStorage.setItem(TKEY, JSON.stringify(trash)); localStorage.setItem(MKEY, JSON.stringify(mdata));
   } catch (e) {}
 }
 
-let data = load(KEY) || {}, cats = load(CKEY), groups = load(GKEY) || DEFGROUPS.map(g => Object.assign({}, g)), trash = load(TKEY) || [];
+let data = load(KEY) || {}, mdata = load(MKEY) || {}, cats = load(CKEY), groups = load(GKEY) || DEFGROUPS.map(g => Object.assign({}, g)), trash = load(TKEY) || [];
 
 function adoptLegacy() {
   for (const k in data) for (const id in data[k])
@@ -223,8 +268,15 @@ function adoptLegacy() {
 function trashCat(id) {
   const cat = cats.find(c => c.id === id); if (!cat) return;
   const counts = {};
-  for (const k in data) if (data[k][id]) { counts[k] = data[k][id]; delete data[k][id]; if (!Object.keys(data[k]).length) delete data[k]; }
-  trash.push({cat, grp: groups.find(g => g.id === cat.group) || null, counts, at: Date.now()});
+  for (const k in data) {
+    const mine = Object.keys(data[k]).filter(x => x === id || x.startsWith(id + ':'));
+    if (!mine.length) continue;
+    counts[k] = {}; mine.forEach(x => { counts[k][x] = data[k][x]; delete data[k][x]; });
+    if (!Object.keys(data[k]).length) delete data[k];
+  }
+  const dm = {};
+  for (const k in mdata) if (mdata[k][id]) { dm[k] = mdata[k][id]; delete mdata[k][id]; if (!Object.keys(mdata[k]).length) delete mdata[k]; }
+  trash.push({cat, grp: groups.find(g => g.id === cat.group) || null, counts, dm, at: Date.now()});
   cats = cats.filter(c => c.id !== id);
 }
 if (!cats) { cats = DEFAULTS.slice(); const o = load('tally:custom'); if (o) cats = cats.concat(o); adoptLegacy(); }
@@ -239,7 +291,8 @@ const $ = id => document.getElementById(id);
 const get = (k, a) => (data[k] && data[k][a]) || 0;
 let sel = todayKey(), viewMonth = fromKey(sel), editing = false;
 let range = null, picking = 0, pickStart = null;
-let filt = new Set(), fopen = false;
+let filt = new Set(), fopen = false, detail = false;
+const isDetail = () => detail;
 viewMonth.setDate(1);
 
 function change(a, delta) {
@@ -254,11 +307,29 @@ function change(a, delta) {
 function goTo(k) { sel = k; const d = fromKey(k); viewMonth = new Date(d.getFullYear(), d.getMonth(), 1); render(); }
 function shiftDay(n) { const d = fromKey(sel); d.setDate(d.getDate() + n); goTo(keyOf(d)); }
 
+// Day modes: tap an icon to cycle its colour for that day. Names are private (editor only).
+// Subcategories live in cat.modes as {id, n: name, i: icon}. Counts are stored as "catId:subId"; plain "catId" = Others.
+const modeList = a => (a.modes || []).filter(m => m && typeof m === 'object' && m.n).map((m, i) => m.id ? m : Object.assign(m, {id: String(i + 1)}));
+const variants = a => [{idx: 0, key: a.id, i: a.icon, n: 'Others'}].concat(modeList(a).map((m, i) => ({idx: i + 1, key: a.id + ':' + m.id, i: m.i || a.icon, n: m.n})));
 const pen = (k, id) => `<button class="pen" data-ed="${k}:${id}" aria-label="Edit">✎</button>`;
-const countRow = a => `<div class="row" style="--c:${a.color}"><span class="ico">${a.icon}</span><span class="name">${esc(a.name)}</span>
-  <button class="btn" data-a="${a.id}" data-d="-1" aria-label="Remove one">−</button><span class="count">${get(sel, a.id)}</span>
-  <button class="btn plus" style="background:${a.color}" data-a="${a.id}" data-d="1" aria-label="Add one">+</button></div>`;
-const editRow = a => `<div class="row" data-id="${a.id}" style="--c:${a.color}"><span class="grip" data-drag="c">⠿</span><span class="ico">${a.icon}</span><span class="name">${esc(a.name)}</span>${pen('c', a.id)}</div>`;
+const tot = (k, a) => variants(a).reduce((t, v) => t + get(k, v.key), 0);
+const open = new Set(), eopen = new Set();
+function toggleOpen(id) { if (open.has(id)) open.delete(id); else open.add(id); render(); }
+const countRow = a => {
+  const subs = variants(a).slice(1), isOpen = open.has(a.id) && subs.length > 0, base = get(sel, a.id);
+  const icon = subs.length ? `<span class="arr">${isOpen ? '▾' : '▸'}</span><button class="ico" data-m="${a.id}" aria-label="Show subcategories">${a.icon}</button>` : `<span class="ico">${a.icon}</span>`;
+  const subRows = isOpen ? subs.map(v => { const n = get(sel, v.key); return `<div class="sub"><span class="ico" style="--c:${a.color}">${v.i}</span><span class="name">${esc(v.n)}</span>
+    <button class="btn" data-a="${v.key}" data-d="-1"${n ? '' : ' disabled'} aria-label="Remove one">−</button><span class="count">${n}</span>
+    <button class="btn plus" style="background:${a.color}" data-a="${v.key}" data-d="1" aria-label="Add one">+</button></div>`; }).join('') : '';
+  return `<div class="rg"><div class="row" style="--c:${a.color}">${icon}<span class="name">${esc(a.name)}</span>
+  <button class="btn" data-a="${a.id}" data-d="-1"${base ? '' : ' disabled'} aria-label="Remove one">−</button><span class="count">${tot(sel, a)}</span>
+  <button class="btn plus" style="background:${a.color}" data-a="${a.id}" data-d="1" aria-label="Add one">+</button></div>${subRows}</div>`;
+};
+const editRow = a => {
+  const isOpen = eopen.has(a.id);
+  const subRows = isOpen ? modeList(a).map(m => `<div class="sub"><span class="ico" style="--c:${a.color}">${m.i || a.icon}</span><span class="name">${esc(m.n)}</span><button class="pen" data-es="${a.id}:${m.id}" aria-label="Edit subcategory">✎</button></div>`).join('') + `<button class="dash sd" data-adds="${a.id}">＋ Add subcategory</button>` : '';
+  return `<div class="rg"><div class="row" data-id="${a.id}" style="--c:${a.color}"><span class="grip" data-drag="c">⠿</span><span class="arr ei">${isOpen ? '▾' : '▸'}</span><button class="ico" data-me="${a.id}" aria-label="Subcategories">${a.icon}</button><span class="name">${esc(a.name)}</span>${pen('c', a.id)}</div>${subRows}</div>`;
+};
 
 function render() {
   drawFilter();
@@ -292,12 +363,16 @@ function render() {
   for (let i = 0; i < first; i++) h += '<div class="cell empty"></div>';
   for (let n = 1; n <= days; n++) {
     const k = y + '-' + pad(m + 1) + '-' + pad(n);
-    const fl = cats.filter(a => (!filt.size || filt.has(a.id)) && get(k, a.id) > 0);
-    const dots = !filt.size ? fl.map(a => `<i style="background:${a.color}"></i>`).join('')
-      : !fl.length ? '' : filt.size === 1 ? `<span class="fi" style="--c:${fl[0].color}">${fl[0].icon}<b>${get(k, fl[0].id)}</b></span>` : `<span class="fi">${fl.map(a => a.icon).join('')}</span>`;
+    const sh = cats.filter(a => !filt.size || filt.has(a.id)), vs = [];
+    sh.forEach(a => variants(a).forEach(v => { const n = get(k, v.key); if (n > 0) vs.push({a, v, n}); }));
+    const ca = sh.map(a => ({a, n: tot(k, a)})).filter(x => x.n > 0);
+    const dots = isDetail() ? vs.map(x => `<span class="fx">${x.v.i}<b>${x.n}</b></span>`).join('')
+      : !filt.size ? ca.map(x => `<i style="background:${x.a.color}"></i>`).join('')
+      : !ca.length ? '' : ca.length === 1 ? `<span class="fi" style="--c:${ca[0].a.color}">${ca[0].a.icon}<b>${ca[0].n}</b></span>` : `<span class="fi">${ca.map(x => x.a.icon).join('')}</span>`;
     h += `<button class="cell${rangeCls(k)}${k === t ? ' now' : ''}" data-k="${k}"><span>${n}</span><span class="dots">${dots}</span></button>`;
   }
   $('grid').innerHTML = h;
+  $('grid').className = 'grid' + (isDetail() ? ' detail' : '');
   drawSummary();
 }
 
@@ -323,7 +398,8 @@ function restore(i) {
   const x = trash[i];
   if (!groups.some(g => g.id === x.cat.group)) groups.push(x.grp || {id:x.cat.group, name:'Restored', icon:'📌'});
   cats.push(x.cat);
-  for (const k in x.counts) { if (!data[k]) data[k] = {}; data[k][x.cat.id] = x.counts[k]; }
+  for (const k in x.counts) { if (!data[k]) data[k] = {}; const v = x.counts[k]; if (typeof v === 'object') Object.assign(data[k], v); else data[k][x.cat.id] = v; }
+  for (const k in (x.dm || {})) { if (!mdata[k]) mdata[k] = {}; mdata[k][x.cat.id] = x.dm[k]; }
   trash.splice(i, 1); save(); render();
 }
 function forever(i) {
@@ -337,7 +413,12 @@ $('dyes').onclick = () => { $('dlg').hidden = true; const f = onYes; onYes = nul
 
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+  if (d.me) { if (eopen.has(d.me)) eopen.delete(d.me); else eopen.add(d.me); return render(); }
+  if (d.es) { const [cid, sid] = d.es.split(':'); return openSub(cid, sid); }
+  if (d.adds) return openSub(d.adds, null);
+  if (d.m) return toggleOpen(d.m);
   if (d.a) return change(d.a, +d.d);
+  if (d.detail) { detail = !detail; return render(); }
   if (d.f) { if (filt.has(d.f)) filt.delete(d.f); else filt.add(d.f); return render(); }
   if (d.k) return pickDate(d.k);
   if (d.mv) { const [k, id, n] = d.mv.split(':'); return move(k, id, +n); }
@@ -377,12 +458,13 @@ function pickDate(k) {
 }
 function drawSummary() {
   const dc = data[sel] || {};
-  const dayChips = cats.filter(a => dc[a.id]).map(a => `<span class="chip" style="--c:${a.color}">${a.icon} <b>${dc[a.id]}</b></span>`).join('');
+  const par = (c, get1) => { if (!detail) return ''; const t = variants(c).slice(1).filter(v => get1(v.key)).map(v => v.i + get1(v.key)).join(' '); return t ? ` <span class="par">(${t})</span>` : ''; };
+  const dayChips = cats.map(a => { const n = tot(sel, a); return n ? `<span class="chip" style="--c:${a.color}">${a.icon} <b>${n}</b>${par(a, k => dc[k] || 0)}</span>` : ''; }).join('');
   $('dayline').innerHTML = `<div class="dl">${fromKey(sel).toLocaleDateString(undefined, {weekday:'long', day:'numeric', month:'long'})}</div>`
     + (dayChips ? `<div class="chips">${dayChips}</div>` : '<div class="hint" style="padding:0">Nothing logged this day.</div>');
   const [a0, a1] = bounds(), sums = {}; let days = 0;
   for (const k in data) if (k >= a0 && k <= a1) {
-    const ids = Object.keys(data[k]).filter(id => !filt.size || filt.has(id)); if (ids.length) days++;
+    const ids = Object.keys(data[k]).filter(id => !filt.size || filt.has(id.split(':')[0])); if (ids.length) days++;
     ids.forEach(id => { sums[id] = (sums[id] || 0) + data[k][id]; });
   }
   $('irange').textContent = picking === 1 ? 'Tap the first date in the calendar' : picking === 2 ? 'Now tap the last date'
@@ -390,9 +472,11 @@ function drawSummary() {
   $('ichange').textContent = picking ? 'Cancel' : 'Change dates';
   $('ichange').classList.toggle('on', !!picking);
   $('ireset').hidden = !range || !!picking;
+  const mk = (c, v, n) => `<span class="chip" style="--c:${c.color}">${v ? v.i : c.icon} <b>${n}</b></span>`;
+  const sumOf = c => variants(c).reduce((t, v) => t + (sums[v.key] || 0), 0);
   const body = groups.map(g => {
-    const items = cats.filter(c => c.group === g.id && sums[c.id]);
-    return items.length ? `<div class="igroup">${g.icon} ${esc(g.name)}</div><div class="chips">${items.map(c => `<span class="chip" style="--c:${c.color}">${c.icon} <b>${sums[c.id]}</b></span>`).join('')}</div>` : '';
+    const items = cats.filter(c => c.group === g.id).map(c => sumOf(c) ? `<span class="chip" style="--c:${c.color}">${c.icon} <b>${sumOf(c)}</b>${par(c, k => sums[k] || 0)}</span>` : '').join('');
+    return items ? `<div class="igroup">${g.icon} ${esc(g.name)}</div><div class="chips">${items}</div>` : '';
   }).join('');
   $('itotals').innerHTML = picking ? '' : body ? body + `<div class="hint">${plural(days, 'day')} with entries</div>` : '<div class="hint">Nothing logged in this period.</div>';
 }
@@ -405,11 +489,13 @@ function drawFilter() {
   $('fbtn').textContent = filt.size ? 'Filter · ' + filt.size : 'Filter';
   $('fbtn').classList.toggle('on', fopen || filt.size > 0);
   $('fclear').hidden = !filt.size;
+  $('fdetail').classList.toggle('on', detail);
   $('fpanel').hidden = !fopen;
   $('fpanel').innerHTML = cats.map(a => `<button class="fchip${filt.has(a.id) ? ' on' : ''}" style="--c:${a.color}" data-f="${a.id}">${a.icon} ${esc(a.name)}</button>`).join('');
 }
 $('fbtn').onclick = () => { fopen = !fopen; render(); };
 $('fclear').onclick = () => { filt.clear(); render(); };
+$('fdetail').onclick = () => { detail = !detail; render(); };
 
 // ----- drag to reorder (grab the ⠿ handle in edit mode) -----
 let drag = null, scrollTimer = null, lastX = 0, lastY = 0;
@@ -481,25 +567,51 @@ function openSheet(kind, id, group) {
   $('nm').value = item ? item.name : ''; $('em').value = '';
   selIcon = item ? item.icon : ''; manual = !!item;
   selGroup = item ? item.group : (group || (groups[0] && groups[0].id));
-  $('del').hidden = !id; drawSeg(); drawIcons(); $('sheet').hidden = false;
+  $('catx').hidden = kind !== 'c';
+  $('note').value = (item && item.note) || '';
+    $('del').hidden = !id; drawSeg(); drawIcons(); $('sheet').hidden = false;
   if (!item) $('nm').focus();
 }
 $('nm').oninput = drawIcons;
 $('icons').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) { selIcon = b.dataset.i; manual = true; $('em').value = ''; drawIcons(); } };
 $('seg').onclick = e => { const b = e.target.closest('button[data-g]'); if (b) { selGroup = b.dataset.g; drawSeg(); } };
 $('cancel').onclick = () => { $('sheet').hidden = true; };
-$('del').onclick = () => { $('sheet').hidden = true; remove(ed.kind, ed.id); };
+$('del').onclick = () => { $('sheet').hidden = true; if (ed.kind === 's') removeSub(ed.cid, ed.id); else remove(ed.kind, ed.id); };
+function openSub(cid, sid) {
+  const cat = cats.find(c => c.id === cid), sub = sid ? modeList(cat).find(m => m.id === sid) : null;
+  ed = {kind: 's', id: sid, cid};
+  $('stitle').textContent = (sid ? 'Edit' : 'New') + ' subcategory · ' + cat.name;
+  $('nm').value = sub ? sub.n : ''; $('em').value = '';
+  selIcon = sub ? (sub.i || cat.icon) : ''; manual = !!sub;
+  $('catx').hidden = true; $('seg').hidden = true; $('del').hidden = !sid;
+  drawIcons(); $('sheet').hidden = false;
+  if (!sub) $('nm').focus();
+}
+function removeSub(cid, sid) {
+  const cat = cats.find(c => c.id === cid), sub = modeList(cat).find(m => m.id === sid), key = cid + ':' + sid;
+  let n = 0; for (const k in data) n += data[k][key] || 0;
+  const go = () => {
+    for (const k in data) if (data[k][key]) { data[k][cid] = (data[k][cid] || 0) + data[k][key]; delete data[k][key]; }
+    cat.modes = modeList(cat).filter(m => m.id !== sid); save(); render();
+  };
+  n ? ask(`Delete “${sub.n}”? Its ${plural(n, 'count')} move to Others, so the total stays the same.`, 'Delete subcategory', go) : go();
+}
 $('save').onclick = () => {
   const name = $('nm').value.trim();
   if (!name) { $('nm').focus(); return; }
   const icon = $('em').value.trim() || selIcon || '⭐';
-  if (ed.kind === 'g') {
+  if (ed.kind === 's') {
+    const cat = cats.find(c => c.id === ed.cid); cat.modes = modeList(cat);
+    const sub = ed.id && cat.modes.find(m => m.id === ed.id);
+    if (sub) { sub.n = name; sub.i = icon; } else cat.modes.push({id: Date.now().toString(36), n: name, i: icon});
+  } else if (ed.kind === 'g') {
     const g = ed.id && groups.find(x => x.id === ed.id);
     if (g) { g.name = name; g.icon = icon; } else groups.push({id:'g' + Date.now(), name, icon});
   } else {
     const c = ed.id && cats.find(x => x.id === ed.id);
-    if (c) { c.name = name; c.icon = icon; c.group = selGroup; }
-    else cats.push({group:selGroup, id:'c' + Date.now(), name, icon, color:COLORS[cats.length % COLORS.length]});
+    const note = $('note').value.trim();
+    if (c) { c.name = name; c.icon = icon; c.group = selGroup; c.note = note; }
+    else cats.push({group:selGroup, id:'c' + Date.now(), name, icon, color:COLORS[cats.length % COLORS.length], note, modes: []});
   }
   save(); $('sheet').hidden = true; render();
 };
@@ -508,7 +620,7 @@ $('save').onclick = () => {
 $('exp').onclick = () => {
   try {
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify({v:4, data, cats, groups, trash})], {type:'application/json'}));
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({v:4, data, mdata, cats, groups, trash})], {type:'application/json'}));
     a.download = 'aware-backup.json'; a.click();
   } catch (e) { alert('Export isn’t available here. It works once the app is on your own site.'); }
 };
@@ -519,9 +631,9 @@ $('file').onchange = e => {
   r.onload = () => {
     try {
       const o = JSON.parse(r.result); if (typeof o !== 'object') throw 0;
-      if (o.v === 4) { data = o.data || {}; cats = o.cats || []; groups = o.groups || DEFGROUPS.slice(); trash = o.trash || []; }
+      if (o.v === 4) { data = o.data || {}; mdata = o.mdata || {}; cats = o.cats || []; groups = o.groups || DEFGROUPS.slice(); trash = o.trash || []; }
       else {
-        groups = DEFGROUPS.map(g => Object.assign({}, g)); trash = [];
+        groups = DEFGROUPS.map(g => Object.assign({}, g)); trash = []; mdata = {};
         if (o.v === 3) { data = o.data || {}; cats = o.cats || DEFAULTS.slice(); }
         else if (o.v === 2) { data = o.data || {}; cats = DEFAULTS.concat(o.custom || []); }
         else { data = o; cats = DEFAULTS.slice(); }
@@ -534,41 +646,13 @@ $('file').onchange = e => {
 };
 
 // offline support: needs service-worker.js next to this file (ignored if it isn’t there)
-const VERSION = 'v3'; let offlineOk = false;
+const VERSION = 'v7'; let offlineOk = false;
 function showVer(extra) { $('ver').textContent = 'Aware ' + VERSION + (offlineOk ? ' · offline ready ✓' : '') + (extra || ''); }
 showVer();
 window.addEventListener('error', e => showVer(' · error: ' + e.message));
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('service-worker.js').then(() => navigator.serviceWorker.ready).then(() => { offlineOk = true; showVer(); }).catch(() => {});
 }
-// ----- app icon (lightbulb) + install info, all generated here so no extra files are needed -----
-function makeIcon(size) {
-  const c = document.createElement('canvas'); c.width = c.height = size;
-  const x = c.getContext('2d'); x.scale(size / 512, size / 512);
-  const g = x.createLinearGradient(0, 0, 0, 512); g.addColorStop(0, '#2b2a4a'); g.addColorStop(1, '#14131f');
-  x.fillStyle = g; x.fillRect(0, 0, 512, 512);
-  const r = x.createRadialGradient(256, 230, 20, 256, 230, 230); r.addColorStop(0, 'rgba(255,213,74,.45)'); r.addColorStop(1, 'rgba(255,213,74,0)');
-  x.fillStyle = r; x.fillRect(0, 0, 512, 512);
-  x.strokeStyle = '#ffd54a'; x.lineWidth = 12; x.lineCap = 'round';
-  [-45, -135, 0, 180].forEach(a => { const t = a * Math.PI / 180; x.beginPath(); x.moveTo(256 + 118 * Math.cos(t), 214 + 118 * Math.sin(t)); x.lineTo(256 + 142 * Math.cos(t), 214 + 142 * Math.sin(t)); x.stroke(); });
-  x.fillStyle = '#ffd54a';
-  x.beginPath(); x.arc(256, 214, 92, 0, Math.PI * 2); x.fill();
-  x.beginPath(); x.moveTo(190, 270); x.lineTo(322, 270); x.lineTo(296, 335); x.lineTo(216, 335); x.closePath(); x.fill();
-  x.fillStyle = '#d9dbe3';
-  [[214, 345, 84], [224, 367, 64]].forEach(([a, b, w]) => { x.beginPath(); x.roundRect(a, b, w, 14, 7); x.fill(); });
-  x.beginPath(); x.arc(256, 372, 18, 0, Math.PI); x.fill();
-  x.strokeStyle = '#1d1d1b'; x.lineWidth = 16; x.lineJoin = 'round'; x.lineCap = 'round';
-  x.beginPath(); x.moveTo(222, 214); x.lineTo(247, 240); x.lineTo(292, 190); x.stroke();
-  return c.toDataURL('image/png');
-}
-function setLink(rel, href, extra) {
-  let l = document.querySelector(`link[rel="${rel}"]`);
-  if (!l) { l = document.createElement('link'); l.rel = rel; document.head.appendChild(l); }
-  l.href = href; if (extra) l.type = extra;
-}
-try {
-  setLink('icon', makeIcon(64), 'image/png');
-} catch (e) {}
 render();
 </script>
 </body>

@@ -1,6 +1,6 @@
 // Aware offline helper. Online: always loads the newest version. Offline: opens the saved copy.
 // Change the version below whenever you replace index.html.
-const CACHE = 'vr-aware-v4';
+const CACHE = 'vr-aware-v5';
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'])).then(() => self.skipWaiting()));
 });
